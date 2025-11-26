@@ -305,28 +305,53 @@ def plot_top_n_words(df, n=20):
     plt.ylabel('Words')
     plt.show()
 
-plot_top_n_words(df,50)
+plot_top_n_words(df, n=50)
 
 
 
 # plot top n words by category
-def plot_top_n_words_by_category():
+def plot_top_n_words_by_category(df, n=20, start=0):  
     #flatten all words in content column and count their occurence by category
-    word_category_count = {}
+    word_category_counts = {}
 
     for idx, row in df.iterrows():
         words = row['clean_comment'].split()
         category = row['category']
 
         for word in words:
-            if word not in word_category_count:
-                word_category_count[word] = {-1:0, 0:0, 1:0}  #initialize counts for each sentiment category
+            if word not in word_category_counts:
+                word_category_counts[word] = {-1:0, 0:0, 1:0}  #initialize counts for each sentiment category
 
             # increment the count for the corresponding sentiment category
-            word_category_count[word][category] +=1
+            word_category_counts[word][category] +=1
     
     # get total counts across all categories for each word
-    total_word_counts = {word: sum(counts.values()) for word,counts in word_category_count.items()}
+    total_word_counts = {word: sum(counts.values()) for word,counts in word_category_counts.items()}
 
+    # get the top N most frequent words across all categories
+    most_common_words = sorted(total_word_counts.items(), key=lambda x: x[1], reverse=True)[start:start+n]
+    top_words = [word for word, _ in most_common_words]
 
-    # 5:32:03
+    #prepare data for plotting
+    word_labels = top_words
+    negative_counts = [word_category_counts[word][-1] for word in top_words]
+    neutral_counts = [word_category_counts[word][0] for word in top_words]
+    positive_count = [word_category_counts[word][1] for word in top_words]
+
+    #plot the stacked bar
+    plt.figure(figsize=(12,8))
+    bar_width = 0.75
+
+    #plot the negative, neutral, and positive counts in a stacked manner
+    plt.barh(word_labels, negative_counts, color='red', label='Negative(-1)', height=bar_width)
+    plt.barh(word_labels, neutral_counts, left=negative_counts, color='grey', label='Neutral(0)', height=bar_width)
+    plt.barh(word_labels, positive_count, left=[i+j for i,j in zip(negative_counts, neutral_counts)], color='green', label='Positive(1)', height=bar_width)
+
+    plt.xlabel('Frequency')
+    plt.ylabel('Words')
+    plt.title(f'Top {n} Most Frequent Words with Stacked Sentiment Categories')
+    plt.legend()
+    plt.gca().invert_yaxis()   #invert y axis to show the highest frequency at the top
+    plt.show()
+
+plot_top_n_words_by_category(df, 20)
