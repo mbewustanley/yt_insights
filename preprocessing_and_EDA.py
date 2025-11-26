@@ -238,7 +238,6 @@ plt.show()
 import re
 
 df['clean_comment'] = df['clean_comment'].apply(lambda x: re.sub(r'[^A-Za-z0-9\s!?.,]', '', str(x)))
-
 all_txt = ' '.join(df['clean_comment'])
 
 #count the frequency of each character
@@ -355,3 +354,6 @@ def plot_top_n_words_by_category(df, n=20, start=0):
     plt.show()
 
 plot_top_n_words_by_category(df, 20)
+
+
+#5:46:55
