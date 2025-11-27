@@ -45,8 +45,8 @@ Youtube Sentiments Insight using a simple machine learning model
 
 - Login to AWS console.
 - Create IAM user with AdministratorAccess
-- Export the credentials in your AWS CLI by running "aws configure"
-- Create a s3 bucket
+- Export the credentials in your AWS CLI by running "aws configure" 
+- Create an s3 bucket
 - Create EC2 machine (Ubuntu) & add Security groups 5000 port
 
 Run the following command on EC2 machine
@@ -80,7 +80,7 @@ aws configure
 
 ## Finally
 ``` 
-mlflow server -h 0.0.0.0 --default-artifact-root s3://stanley-mlflow-bucket-27
+mlflow server -h 0.0.0.0 --default-artifact-root s3://stanley-mlflow-bucket-27 --allowed-hosts "ec2-13-244-77-114.af-south-1.compute.amazonaws.com:5000"
 ```
 
 #open Public IPv4 DNS to the port 5000
@@ -90,5 +90,6 @@ mlflow server -h 0.0.0.0 --default-artifact-root s3://stanley-mlflow-bucket-27
 
 export MLFLOW_TRACKING_URI:
 ```
-mlflow server -h 0.0.0.0 --default-artifact-root s3://stanley-mlflow-bucket-27 --allowed-hosts "ec2-13-247-179-110.af-south-1.compute.amazonaws.com:5000"
+http://ec2-13-244-77-114.af-south-1.compute.amazonaws.com:5000
 ```
+

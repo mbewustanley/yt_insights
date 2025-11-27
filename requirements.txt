@@ -6,3 +6,5 @@ seaborn
 nltk
 wordcloud
 mlflow==2.2.2
+boto3
+awscli
