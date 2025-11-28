@@ -138,5 +138,6 @@ with mlflow.start_run() as run:
     mlflow.log_artifact('dataset.csv')
 
 
-#5:56:15
+df.to_csv('reddit_preprocessing.csv', index=False)
+
 
