@@ -74,8 +74,8 @@ y = df['category'] # Assuming 'sentiment' is the target variable (0 or 1 for bin
 
 # make sure pip install boto3, awscli and then !aws configure on terminal
 # Set mlflow tracking
-mlflow.set_tracking_uri('http://ec2-13-244-77-114.af-south-1.compute.amazonaws.com:5000')
-mlflow.set_experiment('RF Baseline')
+mlflow.set_tracking_uri('http://ec2-13-245-71-96.af-south-1.compute.amazonaws.com:5000')   # this changes with changing IP Address
+mlflow.set_experiment('RF Baseline 1')
 
 #split data(0.80 train)
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42, stratify=y)
