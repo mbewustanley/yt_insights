@@ -96,5 +96,3 @@ max_features_values = [1000, 2000, 3000, 4000, 5000, 6000, 7000, 8000, 9000, 100
 for max_features in max_features_values:
     run_experiment_tfidf_max_features( max_features)
 
-
-#6:12:48
