@@ -6,7 +6,7 @@ import logging
 import os
 
 # Set up MLflow tracking URI
-mlflow.set_tracking_uri("http://ec2-3-84-223-136.compute-1.amazonaws.com:5000/")
+mlflow.set_tracking_uri("http://ec2-13-246-237-29.af-south-1.compute.amazonaws.com:5000/")
 
 
 # logging configuration
@@ -44,7 +44,7 @@ def register_model(model_name: str, model_info: dict):
     """Register the model to the MLflow Model Registry."""
     try:
         model_uri = f"runs:/{model_info['run_id']}/{model_info['model_path']}"
-        
+        #model_uri = 's3://stanley-mlflow-bucket-27/591331531558092443/models/m-fdff034f8bd14103ab2c5ff1300453fb/artifacts/model.pkl'
         # Register the model
         model_version = mlflow.register_model(model_uri, model_name)
         
