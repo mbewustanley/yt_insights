@@ -194,3 +194,20 @@ https://www.youtube.com/watch?v=i_FdiQMwKiw
     AWS_REGION=
     AWS_ECR_LOGIN_URI=
     ECR_REPOSITORY_NAME=
+
+
+
+# Docker custom Images
+
+- "docker build -t mcstanleydocker27/youtubeinsights:latest ."
+
+- "docker run -p 5000:5000 mcstanleydocker27/youtubeinsights:latest"
+
+- "docker run -d -p 5000:5000 mcstanleydocker27/youtubeinsights:latest" # this continues to run the container after your local terminal has been shutdown
+
+
+# Docker Push to hub
+
+- docker login
+
+- docker push mcstanleydocker27/youtubeinsights:latest
