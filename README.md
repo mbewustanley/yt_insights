@@ -162,3 +162,35 @@ https://www.youtube.com/watch?v=i_FdiQMwKiw
 ## 3. create ECR repo to store/save docker image
 
     - save the URI: 
+
+## 4. Create EC2 machine (ubuntu)
+
+## 5. Open EC2 and install Docker in EC2 machine:
+
+    # optional
+
+    sudo apt-get update -y
+
+    sudo apt-get upgrade
+
+    # required
+
+    curl -fsSL https://get.docker.com -o get-docker.sh
+
+    sudo sh get-docker.sh
+
+    sudo usermod -aG docker ubuntu
+
+    newgrp docker
+
+## 6. Configure EC2 as seld-hosted runner:
+
+    settings>actions>runner>new self hosted runner> choose os> then run command one by one
+
+## 7. setup github secrets:
+
+    AWS_ACCESS_KEY_ID=
+    AWS_SECRET_ACCESS_KEY=
+    AWS_REGION=
+    AWS_ECR_LOGIN_URI=
+    ECR_REPOSITORY_NAME=
