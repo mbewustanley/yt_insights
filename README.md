@@ -127,3 +127,38 @@ chrome://extensions
 ## How to get youtube api key from GCP
 
 https://www.youtube.com/watch?v=i_FdiQMwKiw
+
+
+# AWS CICD Deployment with GITHUB ACTIONS
+
+## 1. Login to AWS Console.
+
+## 2. create IAM user for deployment
+
+    # with specific access
+
+    1. EC2 access
+
+    2. ECR: Elastic Container Registry to save our docker image in aws
+
+    # Description About the deployment
+
+    1. Build docker image of the source code
+
+    2. Push the docker image to ECR
+
+    3. Launch EC2
+
+    4. Pull image from ECR in EC2
+
+    5. Launch docker image in EC2
+
+    # Policy:
+
+    1. AmazonEC2ContainerRegistryFullAccess
+
+    AmazonEC2FullAccess
+
+## 3. create ECR repo to store/save docker image
+
+    - save the URI: 
