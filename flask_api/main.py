@@ -79,7 +79,7 @@ def load_model_and_vectorizer(model_name, model_version, vectorizer_path):
 
 
 #initialize model and vectorizer
-model, vectorizer = load_model_and_vectorizer("yt_chrome_plugin_model", "2", "./tfidf_vectorizer.pkl")
+model, vectorizer = load_model_and_vectorizer("yt_chrome_plugin_model", "latest", "./tfidf_vectorizer.pkl")
 
 
 #initialize first(default) route of flask api to test
