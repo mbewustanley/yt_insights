@@ -83,7 +83,7 @@ jobs:
       
       - name: Pull latest images
         run:  |
-          docker pull ${{secrets.AWS_ECR_LOGIN_URL}}/${{  secrets.ECR_REPOSITORY_NAME }}:latest
+          docker pull ${{secrets.AWS_ECR_LOGIN_URI}}/${{secrets.ECR_REPOSITORY_NAME}}:latest
 
       # - name: Stop and remove container if running
       #   runs: |
@@ -95,4 +95,3 @@ jobs:
       - name: Clean previous images and containers
         run:
           docker system prune -f
-
