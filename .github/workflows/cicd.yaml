@@ -88,6 +88,9 @@ jobs:
       # - name: Stop and remove container if running
       #   runs: |
       #   docker ps -q --filter "name=cnncls" | grep -q . && docker stop cnncls &&
+      
+      - name: Debug Image Name
+        run: echo "IMAGE = $ECR_REGISTRY/$ECR_REPOSITORY:latest"
 
       - name: Run Docker Image to serve users
         run: |
