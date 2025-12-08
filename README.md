@@ -129,6 +129,7 @@ chrome://extensions
 https://www.youtube.com/watch?v=i_FdiQMwKiw
 
 
+
 # AWS CICD Deployment with GITHUB ACTIONS
 
 ## 1. Login to AWS Console.
@@ -157,11 +158,11 @@ https://www.youtube.com/watch?v=i_FdiQMwKiw
 
     1. AmazonEC2ContainerRegistryFullAccess
 
-    AmazonEC2FullAccess
+    2. AmazonEC2FullAccess
 
 ## 3. create ECR repo to store/save docker image
 
-    - save the URI: 
+    - save the URI: 111624651583.dkr.ecr.af-south-1.amazonaws.com/yt_plugin_project
 
 ## 4. Create EC2 machine (ubuntu)
 

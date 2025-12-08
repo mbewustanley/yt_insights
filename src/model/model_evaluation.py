@@ -1,3 +1,5 @@
+# to run this file, be sure your EC2 instance is running with mlflow configured
+
 import numpy as np
 import pandas as pd
 import pickle
