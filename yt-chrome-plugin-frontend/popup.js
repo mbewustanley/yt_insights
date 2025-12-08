@@ -4,7 +4,8 @@ document.addEventListener("DOMContentLoaded", async () => {
   const outputDiv = document.getElementById("output");
   const API_KEY = '';  // Replace with your actual YouTube Data API key
   // const API_URL = 'http://my-elb-2062136355.us-east-1.elb.amazonaws.com:80';   
-  const API_URL = 'http://localhost:5000/';    // remember to change this to your cloud url on deployment
+  const API_URL = 'http://13.244.171.75:8080'
+  // const API_URL = 'http://localhost:5000/';    // remember to change this to your cloud url on deployment
 
   // Get the current tab's URL
   chrome.tabs.query({ active: true, currentWindow: true }, async (tabs) => {
