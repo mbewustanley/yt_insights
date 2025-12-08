@@ -198,7 +198,10 @@ https://www.youtube.com/watch?v=i_FdiQMwKiw
 
 
 
-# Docker custom Images
+
+# DOCKER Reminder
+
+## Docker custom Images
 
 - "docker build -t mcstanleydocker27/youtubeinsights:latest ."
 
@@ -207,7 +210,7 @@ https://www.youtube.com/watch?v=i_FdiQMwKiw
 - "docker run -d -p 5000:5000 mcstanleydocker27/youtubeinsights:latest" # this continues to run the container after your local terminal has been shutdown
 
 
-# Docker Push to hub
+## Docker Push to hub
 
 - docker login
 
