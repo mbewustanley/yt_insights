@@ -24,8 +24,7 @@ stages:
     deps:
       - src/components/model_trainer.py
       - src/config/config.py
-      - src/entity/model_trainer_artifact.py
-      - src/entity/data_preprocessing_artifact.py
+      - src/entity/artifact.py
       - data/interim/train_processed.csv
       - src/utils/logger.py
     outs:
@@ -38,18 +37,28 @@ stages:
     deps:
       - src/components/model_evaluator.py
       - src/utils/logger.py
-
-      # Config
       - src/config/config.yaml
-
-      # Artifacts from previous stages
       - data/interim/test_processed.csv
       - models/trained_model.pkl
       - models/tfidf_vectorizer.pkl
 
     outs:
-      - reports/experiment_info.json
-      - reports/confusion_matrix_Test_Data.png
+      - reports/confusion_matrix.png
+      - reports/metrics.json
+
+
+
+  # model_pusher:
+  #   cmd: python src/components/model_pusher.py
+  #   deps:
+  #     - src/components/model_pusher.py
+  #     - src/config/config.py
+  #     - src/entity/artifact.py
+  #     - models/trained_model.pkl
+  #     - models/tfidf_vectorizer.pkl
+  #   outs:
+  #     - saved_models
+
 
 
 #   model_building:

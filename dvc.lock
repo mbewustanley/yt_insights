@@ -3,18 +3,14 @@ stages:
   data_ingestion:
     cmd: python src/components/data_ingestion.py
     deps:
-    - path: params.yaml
-      hash: md5
-      md5: b2b1df1735959ddd2438abe139a06503
-      size: 298
     - path: src/components/data_ingestion.py
       hash: md5
-      md5: 1184ab15c6623e6efc888dc520c15db7
-      size: 3900
+      md5: 13fefdfa5a9090e6ccb346739cebb14a
+      size: 3885
     - path: src/config/config.py
       hash: md5
-      md5: b8077f75a13cd5d4e5d9fa7e92c87939
-      size: 826
+      md5: 49182d82c5dc6f7c52acb69b29bf17aa
+      size: 922
     outs:
     - path: data/raw/test.csv
       hash: md5
@@ -37,12 +33,12 @@ stages:
       size: 5571089
     - path: src/components/data_preprocessing.py
       hash: md5
-      md5: 34a65b06d261db18403c9bbb35a13d1a
-      size: 3760
-    - path: src/config/data_preprocessing_config.py
+      md5: c4f9d831279d766415fe1c6e4ac42c52
+      size: 3722
+    - path: src/config/config.py
       hash: md5
-      md5: b4808a9c2e5c23a30c1fb8b04ab08d0b
-      size: 212
+      md5: 49182d82c5dc6f7c52acb69b29bf17aa
+      size: 922
     outs:
     - path: data/interim/test_processed.csv
       hash: md5
@@ -129,20 +125,16 @@ stages:
       size: 4134324
     - path: src/components/model_trainer.py
       hash: md5
-      md5: e9067e2da763ebc6215254de3e57eaa9
-      size: 4527
-    - path: src/config/model_trainer_config.py
+      md5: dbc6fc7c2f1228ab9db1895f0725b361
+      size: 4434
+    - path: src/config/config.py
       hash: md5
-      md5: 11cb0fd18fc5c0b5fc922e3763f7e288
-      size: 339
-    - path: src/entity/data_preprocessing_artifact.py
+      md5: 49182d82c5dc6f7c52acb69b29bf17aa
+      size: 922
+    - path: src/entity/artifact.py
       hash: md5
-      md5: 9a945e20e1e0d774d947b40e56f830be
-      size: 144
-    - path: src/entity/model_trainer_artifact.py
-      hash: md5
-      md5: 9592e73cbbf1b73a61b5a8239e3dab67
-      size: 163
+      md5: 02dfa1dc002f67fdbab4393ab232dd8b
+      size: 613
     - path: src/utils/logger.py
       hash: md5
       md5: f62de40488eb1649df17248da9de8796
@@ -156,3 +148,39 @@ stages:
       hash: md5
       md5: 489f2d0778a8f4903dfde4d3f0f0d567
       size: 3904327
+  model_evaluator:
+    cmd: python src/components/model_evaluator.py
+    deps:
+    - path: data/interim/test_processed.csv
+      hash: md5
+      md5: 4f30375397ec89fead1745ee6d70f201
+      size: 1000526
+    - path: models/tfidf_vectorizer.pkl
+      hash: md5
+      md5: f86120c701e4e8eec585249c62a03b5b
+      size: 32873
+    - path: models/trained_model.pkl
+      hash: md5
+      md5: 489f2d0778a8f4903dfde4d3f0f0d567
+      size: 3904327
+    - path: src/components/model_evaluator.py
+      hash: md5
+      md5: b9cfbead295827e5c1039768ad929848
+      size: 7585
+    - path: src/config/config.yaml
+      hash: md5
+      md5: acfcdf4092eb201978436fd632fdb3de
+      size: 706
+    - path: src/utils/logger.py
+      hash: md5
+      md5: f62de40488eb1649df17248da9de8796
+      size: 982
+    outs:
+    - path: reports/confusion_matrix.png
+      hash: md5
+      md5: fe292f983cf1076f679518b1d7d27644
+      size: 20250
+    - path: reports/metrics.json
+      hash: md5
+      md5: f55b00201bca4e6d6c6312f1d21f3982
+      size: 902

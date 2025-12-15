@@ -25,3 +25,10 @@ class ModelEvaluatorArtifact:
     is_model_accepted: bool
     metrics_path: Path
     mlflow_run_id: str
+
+
+@dataclass
+class ModelPusherArtifact:
+    saved_model_dir: Path
+    model_path: Path
+    vectorizer_path: Path

@@ -10,6 +10,7 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
+from pathlib import Path
 
 from nltk.corpus import stopwords
 from nltk.stem import WordNetLemmatizer
@@ -17,11 +18,24 @@ from wordcloud import WordCloud
 from flask import Flask, request, jsonify, send_file
 from flask_cors import CORS
 
+#class imports
+from src.utils.logger import get_logger
+from src.config.config import ModelEvaluatorConfig, FlaskConfig
+import yaml
+
+logger = get_logger("Flask Implementation")
+
 
 app = Flask(__name__)
 CORS(app)  # Enable CORS for all routes
 
 
+class Flask_Api:
+    def __init__(
+            self,
+            config: FlaskConfig,
+            ):
+        self.config = config
 
 def preprocess_comment(comment):
     """Apply preprocessing transformations to a comment."""
@@ -50,37 +64,75 @@ def preprocess_comment(comment):
     except Exception as e:
         print(f"Error in preprocessing comment: {e}")
         return comment
+    
+
+
+
 
 # Load the model and vectorizer from the model registry and local storage
-def load_model_and_vectorizer(model_name, model_version, vectorizer_path):
-    #set MLFlow tracking URI to your server
-    mlflow.set_tracking_uri("http://ec2-13-247-106-239.af-south-1.compute.amazonaws.com:5000/")
-    client = MlflowClient()
+#  def load_model_and_vectorizer(model_name, model_version, vectorizer_path):
+#     #set MLFlow tracking URI to your server
+#     mlflow.set_tracking_uri("http://ec2-13-247-106-239.af-south-1.compute.amazonaws.com:5000/")
+#     client = MlflowClient()
 
-    model_uri = f"models:/{model_name}/{model_version}"
-    model = mlflow.sklearn.load_model(model_uri) # sklearn <> pyfunc
+#     model_uri = f"models:/{model_name}/{model_version}"
+#     model = mlflow.sklearn.load_model(model_uri) # sklearn <> pyfunc
 
-    with open(vectorizer_path, 'rb') as file:
-        vectorizer = pickle.load(file)
-    return model, vectorizer
+#     with open(vectorizer_path, 'rb') as file:
+#         vectorizer = pickle.load(file)
+#     return model, vectorizer
 
-#def load_model(model_path, vectorizer_path):
-    """Load the trained model."""
-    try:
-        with open(model_path, 'rb') as file:
-            model = pickle.load(file)
+# #def load_model(model_path, vectorizer_path):
+#     """Load the trained model."""
+#     try:
+#         with open(model_path, 'rb') as file:
+#             model = pickle.load(file)
         
-        with open(vectorizer_path, 'rb') as file:
-            vectorizer = pickle.load(file)
+#         with open(vectorizer_path, 'rb') as file:
+#             vectorizer = pickle.load(file)
       
-        return model, vectorizer
-    except Exception as e:
-        raise
+#         return model, vectorizer
+#     except Exception as e:
+#         raise
+
+try:
+    PROJECT_ROOT = Path(__file__).resolve().parents[2]
+
+    with open(PROJECT_ROOT / "src/config/config.yaml", "r") as f:
+        config_yaml = yaml.safe_load(f)
+
+    eval_cfg = config_yaml["flask_api"]
+
+    flask_config = FlaskConfig(
+        MODEL_NAME = eval_cfg['model_name'], #yt_insights_classifier
+        MODEL_VERSION = ["model_version"],  # 1
+        MLFLOW_TRACKING_URI = ['mlflow_tracking_uri'] 
+    )
+
+except Exception:
+    logger.error("Flask configuration failed", exc_info=True)
 
 
 #initialize model and vectorizer
-model, vectorizer = load_model_and_vectorizer("yt_chrome_plugin_model", "latest", "./tfidf_vectorizer.pkl")
+# model, vectorizer = load_model_and_vectorizer("yt_chrome_plugin_model", "latest", "./tfidf_vectorizer.pkl")
 
+
+
+
+
+
+
+
+# --------------------------------------------------
+# MLflow model loading (PIPELINE)
+# --------------------------------------------------
+mlflow.set_tracking_uri("http://ec2-13-247-106-239.af-south-1.compute.amazonaws.com:5000/")
+MODEL_NAME = 1  #"yt_insights_classifier"
+MODEL_VERSION = 1
+MODEL_STAGE = "Production"  # or Staging
+
+model_uri = f"models:/{MODEL_NAME}/{MODEL_VERSION}"
+model = mlflow.sklearn.load_model(model_uri)
 
 #initialize first(default) route of flask api to test
 @app.route('/')
@@ -102,25 +154,31 @@ def predict():
 
     try:
         # Preprocess each comment before vectorizing
-        preprocessed_comments = [preprocess_comment(comment) for comment in comments]
+        #preprocessed_comments = [preprocess_comment(comment) for comment in comments]
         
         # Transform comments using the vectorizer
-        transformed_comments = vectorizer.transform(preprocessed_comments)
+       # transformed_comments = vectorizer.transform(preprocessed_comments)
 
         # Convert the sparse matrix to dense format
-        dense_comments = transformed_comments.toarray()  # Convert to dense array
+        #dense_comments = transformed_comments.toarray()  # Convert to dense array
         
         # Make predictions
-        predictions = model.predict(dense_comments).tolist()  # Convert to list
+        #predictions = model.predict(dense_comments).tolist()  # Convert to list
         
         # Convert predictions to strings for consistency
         # predictions = [str(pred) for pred in predictions]
+
+
+        # pipeline handles everything
+        predictions = model.predict(comments)
+
     except Exception as e:
         return jsonify({"error": f"Prediction failed: {str(e)}"}), 500
     
     # Return the response with original comments and predicted sentiments
     response = [{"comment": comment, "sentiment": sentiment} for comment, sentiment in zip(comments, predictions)]
     return jsonify(response)
+
 
 @app.route('/predict_with_timestamps', methods=['POST'])
 def predict_with_timestamps():
@@ -130,24 +188,26 @@ def predict_with_timestamps():
     if not comments_data:
         return jsonify({"error": "No comments provided"}), 400
 
+    comments = [item['text'] for item in comments_data]
+    timestamps = [item['timestamp'] for item in comments_data]
+
     try:
-        comments = [item['text'] for item in comments_data]
-        timestamps = [item['timestamp'] for item in comments_data]
+        predictions = model.predict(comments)
 
-        # Preprocess each comment before vectorizing
-        preprocessed_comments = [preprocess_comment(comment) for comment in comments]
+        # # Preprocess each comment before vectorizing
+        # preprocessed_comments = [preprocess_comment(comment) for comment in comments]
         
-        # Transform comments using the vectorizer
-        transformed_comments = vectorizer.transform(preprocessed_comments)
+        # # Transform comments using the vectorizer
+        # transformed_comments = vectorizer.transform(preprocessed_comments)
 
-        # Convert the sparse matrix to dense format
-        dense_comments = transformed_comments.toarray()  # Convert to dense array
+        # # Convert the sparse matrix to dense format
+        # dense_comments = transformed_comments.toarray()  # Convert to dense array
         
-        # Make predictions
-        predictions = model.predict(dense_comments).tolist()  # Convert to list
+        # # Make predictions
+        # predictions = model.predict(dense_comments).tolist()  # Convert to list
         
-        # Convert predictions to strings for consistency
-        predictions = [str(pred) for pred in predictions]
+        # # Convert predictions to strings for consistency
+        # predictions = [str(pred) for pred in predictions]
     except Exception as e:
         return jsonify({"error": f"Prediction failed: {str(e)}"}), 500
     

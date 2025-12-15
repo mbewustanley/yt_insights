@@ -2,22 +2,20 @@ import os
 import json
 import pickle
 import pandas as pd
+import mlflow
+import mlflow.sklearn
 import matplotlib.pyplot as plt
 import seaborn as sns
 from pathlib import Path
 import yaml
+
 from sklearn.metrics import classification_report, confusion_matrix
-from sklearn.pipeline import Pipeline
 
-#mlflow
-import mlflow
-import mlflow.sklearn
-from mlflow.models.signature import infer_signature
-
-#Class imports
 from src.utils.logger import get_logger
 from src.config.config import ModelEvaluatorConfig
 from src.entity.artifact import ModelTrainerArtifact, DataPreprocessingArtifact, ModelEvaluatorArtifact
+
+
 
 ### evaluate → log metrics/artifacts → log model → if accepted → register
 
@@ -60,8 +58,7 @@ class ModelEvaluator:
 
         return report, cm
 
-
-    def log_confusion_matrix(self, cm) -> Path:
+    def log_confusion_matrix(self, cm):
         plt.figure(figsize=(8, 6))
         sns.heatmap(cm, annot=True, fmt="d", cmap="Blues")
         plt.title("Confusion Matrix")
@@ -69,13 +66,13 @@ class ModelEvaluator:
         plt.ylabel("Actual")
 
         self.config.metric_output_path.parent.mkdir(parents=True, exist_ok=True)
-        cm_path = self.config.metric_output_path.parent / "confusion_matrix.png"
+        cm_path = self.config.metric_output_path.parent/"confusion_matrix.png"
+        
         print("Saving confusion matrix to:", cm_path.resolve())
 
         plt.savefig(cm_path)
+        mlflow.log_artifact(str(cm_path))
         plt.close()
-
-        return cm_path
 
 
     def run(self) -> ModelEvaluatorArtifact:
@@ -85,22 +82,13 @@ class ModelEvaluator:
         mlflow.set_experiment(self.config.mlflow_experiment_name)
 
         with mlflow.start_run() as run:
-            
-            # Load artifacts
-            # --------------------------------------------------
             model, vectorizer = self.load_model_and_vectorizer()
             test_df = self.load_test_data()
 
-            
-            # Evaluate
-            # --------------------------------------------------
             report, cm = self.evaluate(model, vectorizer, test_df)
 
-            weighted_f1 = report["weighted avg"]["f1-score"]
-
-            
             # Log metrics
-            # --------------------------------------------------
+            weighted_f1 = report["weighted avg"]["f1-score"]
             mlflow.log_metric("weighted_f1", weighted_f1)
 
             for label, metrics in report.items():
@@ -111,73 +99,24 @@ class ModelEvaluator:
                         f"{label}_f1": metrics["f1-score"]
                     })
 
-            
-            # Log artifacts
-            # --------------------------------------------------
-            cm_path = self.log_confusion_matrix(cm)
-            mlflow.log_artifact(str(cm_path))
+            self.log_confusion_matrix(cm)
 
+            # Save metrics locally (DVC-tracked)
             with open(self.config.metric_output_path, "w") as f:
                 json.dump(report, f, indent=4)
 
-            mlflow.log_artifact(str(self.config.metric_output_path))
-
-
-            # --------------------------------------------------
-            # Model signature & input example
-            # --------------------------------------------------
-
-            pipeline_model = Pipeline(
-                steps=[
-                    ("tfidf", vectorizer),
-                    ("classifier", model)
-                ]
-            )
-
-            # Small, representative sample (important for MLflow UI)
-            X_raw_example = test_df[["clean_comment"]].iloc[:5]
-
-            y_example = pipeline_model.predict(X_raw_example['clean_comment'])
-
-            signature = infer_signature(X_raw_example, y_example)
-
-
-            # Log model + vectorizer
-            # --------------------------------------------------
-            mlflow.sklearn.log_model(
-                sk_model=pipeline_model,
-                name="model",  #artifact path is depreciated
-                signature=signature,
-                input_example=X_raw_example
-            )
-
-            mlflow.sklearn.log_model(
-                sk_model=vectorizer,
-                name="vectorizer"
-            )
-
-            # --------------------------------------------------
-            # Conditional registration
-            # --------------------------------------------------
             is_accepted = weighted_f1 >= self.config.acceptance_threshold
 
-            if is_accepted:
-                self.logger.info("Model accepted — registering model")
-
-                model_uri = f"runs:/{run.info.run_id}/model"
-
-                mlflow.register_model(
-                    model_uri=model_uri,
-                    name=self.config.mlflow_registered_model_name
-                )
-            else:
-                self.logger.info("Model rejected — not registering")
+            self.logger.info(
+                "Model accepted" if is_accepted else "Model rejected"
+            )
 
             return ModelEvaluatorArtifact(
                 is_model_accepted=is_accepted,
                 metrics_path=self.config.metric_output_path,
                 mlflow_run_id=run.info.run_id
             )
+
 
 
 def main():
@@ -196,8 +135,7 @@ def main():
             metric_output_path=PROJECT_ROOT / eval_cfg["metric_output_path"],
             acceptance_threshold=eval_cfg["acceptance_threshold"],
             mlflow_tracking_uri=eval_cfg["mlflow_tracking_uri"],
-            mlflow_experiment_name=eval_cfg["mlflow_experiment_name"],
-            mlflow_registered_model_name=eval_cfg["mlflow_registered_model_name"]
+            mlflow_experiment_name=eval_cfg["mlflow_experiment_name"]
         )
 
         trainer_artifact = ModelTrainerArtifact(

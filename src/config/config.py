@@ -30,7 +30,7 @@ class ModelTrainerConfig:
     max_depth: int
     n_estimators: int
 
-    
+
 @dataclass
 class ModelEvaluatorConfig:
     root_dir: Path
@@ -38,7 +38,16 @@ class ModelEvaluatorConfig:
     acceptance_threshold: float
     mlflow_tracking_uri: str
     mlflow_experiment_name: str
+    mlflow_registered_model_name: str
 
 
 
+@dataclass
+class ModelPusherConfig:
+    saved_model_dir: Path
 
+@dataclass
+class FlaskConfig:
+    model_name: str
+    model_version: str
+    mlflow_tracking_uri: str
