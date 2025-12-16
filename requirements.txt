@@ -16,4 +16,4 @@ Flask_Cors
 joblib
 dvc[s3]
 boto3
--e .
+#-e .

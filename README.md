@@ -40,6 +40,39 @@ Youtube Sentiments Insight using a simple machine learning model
 
 - conda env name: YTenv
 
+- model input :
+POST /predict
+{
+  "comments": ["string", "string", ...]
+}
+
+- architecture:
+[DVC]
+  └── Training pipeline
+        └── logs to MLflow
+              └── registers model
+
+[Flask]
+  └── pulls model from MLflow Registry
+        └── serves predictions
+
+[Docker]
+  └── packages Flask + runtime deps
+
+
+- setup:
+Training (local / CI)
+  ├── DVC
+  ├── MLflow
+  └── Model registered
+
+Serving (CI/CD)
+  ├── Build Docker image
+  ├── Push to ECR
+  └── Deploy container
+
+
+
 
 ## MLFLOW on AWS Setup:
 
@@ -197,20 +230,32 @@ https://www.youtube.com/watch?v=i_FdiQMwKiw
     ECR_REPOSITORY_NAME=
 
 
+## to restart runner
+
+    cd actions-runner
+    ./run.sh
+
 
 
 # DOCKER Reminder
 
 ## Docker custom Images
 
-- "docker build -t mcstanleydocker27/youtubeinsights:latest ."
+- docker build -t mcstanleydocker27/youtubeinsights:latest .
 
-- "docker run -p 5000:5000 mcstanleydocker27/youtubeinsights:latest"
+- docker run -p 8000:8000 mcstanleydocker27/youtubeinsights:latest
 
-- "docker run -d -p 5000:5000 mcstanleydocker27/youtubeinsights:latest" # this continues to run the container after your local terminal has been shutdown
+- docker run -d -p 8000:8000 mcstanleydocker27/youtubeinsights:latest 
+// this continues to run the container after your local terminal has been shutdown
+
+- docker run -p 8000:8000 \
+  -e MLFLOW_TRACKING_URI=http://ec2-13-244-115-169.af-south-1.compute.amazonaws.com:5000 \
+  mcstanleydocker27/youtubeinsights:latest
 
 
 ## Docker Push to hub
+
+- docker images
 
 - docker login
 

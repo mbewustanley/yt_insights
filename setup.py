@@ -1,11 +1,30 @@
 from setuptools import find_packages, setup
 
 setup(
-    name = 'youtube',
-    version= '0.0.0',
+    name = 'yt_insights',
+    version= '0.1',
     author= 'Stanley',
     author_email= 'mbewustanley@gmail.com',
-    packages= find_packages(),
-    install_requires = []
-
-)
+    packages= find_packages(where="src"),
+    package_dir={"": "src"},
+    install_requires = [
+        "pandas",
+        "numpy",
+        "scikit-learn",
+        "matplotlib",
+        "seaborn",
+        "nltk",
+        "wordcloud",
+        "mlflow",
+        "imblearn",
+        "optuna",
+        "xgboost",
+        "imbalanced-learn",
+        "lightgbm",
+        "Flask",
+        "Flask_Cors",
+        "joblib",
+        "dvc[s3]",
+        "boto3",
+    ],
+    )

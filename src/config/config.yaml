@@ -18,12 +18,12 @@ model_evaluator:
    root_dir: ""
    metric_output_path: reports/metrics.json
    acceptance_threshold: 0.75
-   mlflow_tracking_uri: http://ec2-13-244-179-88.af-south-1.compute.amazonaws.com:5000/
+   mlflow_tracking_uri: http://ec2-13-244-115-169.af-south-1.compute.amazonaws.com:5000/
    mlflow_experiment_name: dvc-pipeline-runs-test2
    mlflow_registered_model_name: yt_insights_classifier
 
 
 flask_api:
     model_name: yt_insights_classifier
-    model_version: 1
-    mlflow_tracking_uri: http://ec2-13-244-179-88.af-south-1.compute.amazonaws.com:5000/
+    model_version: latest
+    mlflow_tracking_uri: http://ec2-13-244-115-169.af-south-1.compute.amazonaws.com:5000/

@@ -34,24 +34,32 @@ CORS(app)
 
 
 def preprocess_comment(comment: str) -> str:
-    comment = comment.lower().strip()
-    comment = re.sub(r"\n", " ", comment)
-    comment = re.sub(r"[^A-Za-z0-9\s!?.,]", "", comment)
+    """Apply preprocessing transformations to a comment."""
+    try:
+        # Convert to lowercase
+        comment = comment.lower()
 
-    stop_words = set(stopwords.words("english")) - {
-        "not", "but", "however", "no", "yet"
-    }
+        # Remove trailing and leading whitespaces
+        comment = comment.strip()
 
-    comment = " ".join(
-        word for word in comment.split() if word not in stop_words
-    )
+        # Remove newline characters
+        comment = re.sub(r'\n', ' ', comment)
 
-    lemmatizer = WordNetLemmatizer()
-    comment = " ".join(
-        lemmatizer.lemmatize(word) for word in comment.split()
-    )
+        # Remove non-alphanumeric characters, except punctuation
+        comment = re.sub(r'[^A-Za-z0-9\s!?.,]', '', comment)
 
-    return comment
+        # Remove stopwords but retain important ones for sentiment analysis
+        stop_words = set(stopwords.words('english')) - {'not', 'but', 'however', 'no', 'yet'}
+        comment = ' '.join([word for word in comment.split() if word not in stop_words])
+
+        # Lemmatize the words
+        lemmatizer = WordNetLemmatizer()
+        comment = ' '.join([lemmatizer.lemmatize(word) for word in comment.split()])
+
+        return comment
+    except Exception as e:
+        print(f"Error in preprocessing comment: {e}")
+        return comment
 
 
 # --------------------------------------------------
@@ -59,12 +67,12 @@ def preprocess_comment(comment: str) -> str:
 # --------------------------------------------------
 MLFLOW_TRACKING_URI = os.getenv(
     "MLFLOW_TRACKING_URI",
-    "http://ec2-13-244-179-88.af-south-1.compute.amazonaws.com:5000/"
+    "http://ec2-13-244-115-169.af-south-1.compute.amazonaws.com:5000/"
 )
 
 MODEL_NAME = "yt_insights_classifier"
 MODEL_STAGE = "Production"  # or "Staging"
-MODEL_VERSION = 3
+MODEL_VERSION = 'latest'
 
 mlflow.set_tracking_uri(MLFLOW_TRACKING_URI)
 
@@ -93,24 +101,36 @@ def predict():
         return jsonify({"error": "No comments provided"}), 400
 
 
+    print("comments:", comments)
+    print("type(comments):", type(comments))
+
+
     # Preprocess
     clean_comments = [preprocess_comment(c) for c in comments]
 
     # MUST be DataFrame (matches MLflow signature)
-    input_df = pd.DataFrame(
-        {"clean_comment": clean_comments}
-    )
+    # input_df = pd.DataFrame(
+    #     {"clean_comment": clean_comments}
+    # )
 
 
     try:
-        predictions = model.predict(input_df).tolist()
+        #print("input_df shape:", input_df.shape)
+        predictions = model.predict(clean_comments).tolist()
+        #predictions = model.predict(input_df).tolist()
+        print("predictions:", predictions)
+        print("len(predictions):", len(predictions))
+
     except Exception as e:
-        return jsonify({"error": "{str(e)}"}), 500
+        return jsonify({"error": f"{str(e)}"}), 500
 
     response = [
         {"comment": comment, "sentiment": int(pred)}
         for comment, pred in zip(comments, predictions)
     ]
+
+    assert len(comments) == len(predictions), "Prediction count mismatch"
+
 
     return jsonify(response)
 
