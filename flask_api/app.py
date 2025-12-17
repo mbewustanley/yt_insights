@@ -67,7 +67,7 @@ def preprocess_comment(comment: str) -> str:
 # --------------------------------------------------
 MLFLOW_TRACKING_URI = os.getenv(
     "MLFLOW_TRACKING_URI",
-    "http://ec2-13-244-115-169.af-south-1.compute.amazonaws.com:5000/"
+    "http://ec2-13-245-159-224.af-south-1.compute.amazonaws.com:5000/"
 )
 
 MODEL_NAME = "yt_insights_classifier"

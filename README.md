@@ -40,13 +40,24 @@ Youtube Sentiments Insight using a simple machine learning model
 
 - conda env name: YTenv
 
-- model input :
+### RUN
+
+- run and configure ec2: yt-mlflow-machine 
+
+- configure .env and config.js
+
+- cmd: python run.py
+
+
+### model input :
+
 POST /predict
 {
   "comments": ["string", "string", ...]
 }
 
-- architecture:
+### architecture:
+
 [DVC]
   └── Training pipeline
         └── logs to MLflow
@@ -60,7 +71,8 @@ POST /predict
   └── packages Flask + runtime deps
 
 
-- setup:
+### setup:
+
 Training (local / CI)
   ├── DVC
   ├── MLflow
